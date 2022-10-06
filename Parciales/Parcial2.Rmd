@@ -1,0 +1,96 @@
+---
+title: "Parcial 2."
+subtitle: " Estadistica Computacional. Curso 2021-2022."
+author: "Carlota Valdivia Manzano."
+date: "2 de Junio de 2022."
+---
+
+## Ejercicio 1
+
+Construimos un diagrama de cajas de la variable radiación solar (Solar.R) que permita comparar la distribución de sus valores en los meses de mayo, junio, julio, agosto y septiembre.
+
+```{r }
+boxplot(airquality$Solar.R~airquality$Month, main = "Diagrama de cajas de las variables Solar.R y Month")
+```
+
+Cosntruimos un diagrama de dispersión que permita visualizar la posible relación entre: la radiación solar, Solar.R (eje horizontal) y el contaminante Ozone (eje vertical).
+```{r }
+plot(airquality$Solar.R, airquality$Ozone, main = "Diagrama de dispersión")
+```
+
+Ajustamos a los datos del diagrama de dispersión anterior la recta de regresión y la superponemos en el gráfico.
+```{r }
+mod<-lm(airquality$Ozone ~ 1 + airquality$Solar.R)
+```
+
+Representamos el modelo ajustado sobre el diagrama de dispersión anterior
+
+```{r }
+plot(airquality$Solar.R, airquality$Ozone, main = "Diagrama de dispersión")
+abline(mod, col="2")
+```
+
+Borramos memoria
+
+```{r }
+rm(list=ls(all=TRUE))
+```
+
+
+## Ejercicio 2
+Utilizando el método de inversión vamos a generar n=1000 valores de una distribución 
+Pareto con parámetros a=5 y b=4.
+
+```{r }
+n<-1000
+a<-5
+b<-4
+
+set.seed(1)
+u<-runif(n)
+```
+
+Evaluamos usando gráficos y el contraste de Kolmogorov-Smirnow que en efecto los valores
+generados provienen de dicha distribución.
+
+```{r }
+inversa.pareto<-function(u, a, b) {
+  (b/(1-u)^(1/a))
+}
+
+x<-inversa.pareto(u,a,b)
+```
+
+Calculamos la funciones de densidad y distribución
+
+```{r}
+f.densidad<-function(x, a, b) {
+  ifelse(x>=b, (a*b^a)/(x^(a+1)), 0)
+}
+
+f.distribucion<-function(x, a, b) {
+  ifelse(x>=b, 1-(b/x)^a, 0)
+}
+```
+
+Creamos el gráfico, y comprobamos que los valores que hemos generado corresponde a los de la distribución. Para ello vamos a representar los valores de la distribución mediante un histograma, la densidad suavizada y la densidad real.
+
+```{r }
+hist(x, breaks="FD", freq=FALSE, main="Método de inversión", xlim=c(0,20),ylim=c(0,1.3))
+lines(density(x), col="blue")
+curve(f.densidad(x,a,b),add=TRUE,col=2)
+```
+
+Evaluamos el contraste de Kolmogorov-Smirnow
+
+```{r }
+ks.test(x,f.distribucion,a=a,b=b)
+```
+
+Podemos apreciar que el p-valor nos dice que no se aprecian desviaciones de la hipótesis nula planteada.
+
+Borramos memoria
+
+```{r }
+rm(list=ls(all=TRUE))
+```
